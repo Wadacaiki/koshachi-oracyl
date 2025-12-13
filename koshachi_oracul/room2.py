@@ -6,6 +6,37 @@ class Room2:
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
+
+        # Константы для шкафа
+        self.CLOSET_WIDTH = 300
+        self.CLOSET_HEIGHT = 400
+        self.CLOSET_X = 100
+        self.CLOSET_Y = self.screen_height - 450
+
+        # Константы для полки с кристаллами
+        self.CRYSTAL_SHELF_WIDTH = 120
+        self.CRYSTAL_SHELF_HEIGHT = 100
+        self.CRYSTAL_SHELF_X = self.CLOSET_X + 50
+        self.CRYSTAL_SHELF_Y = self.CLOSET_Y + 50
+
+        # Константы для полки со свитками
+        self.SCROLL_SHELF_WIDTH = 120
+        self.SCROLL_SHELF_HEIGHT = 100
+        self.SCROLL_SHELF_X = self.CLOSET_X + 50
+        self.SCROLL_SHELF_Y = self.CLOSET_Y - 50
+
+        # Константы для NPC кота
+        self.CAT_WIDTH = 150
+        self.CAT_HEIGHT = 200
+        self.CAT_X = self.screen_width - 250
+        self.CAT_Y = self.screen_height - 300
+
+        # Константы для ключей и свитков
+        self.KEY_WIDTH = 60
+        self.KEY_HEIGHT = 30
+        self.SCROLL_WIDTH = 40
+        self.SCROLL_HEIGHT = 60
+
         self.background = None
         self.inventory = []
         self.add_to_inventory = None
@@ -34,12 +65,13 @@ class Room2:
         # Шкаф
         try:
             closet_img = pygame.image.load("assets/hkaf.png")
-            closet_img = pygame.transform.scale(closet_img, (300, 400))
-            screen.blit(closet_img, (100, self.screen_height - 450))
+            closet_img = pygame.transform.scale(closet_img, (self.CLOSET_WIDTH, self.CLOSET_HEIGHT))
+            screen.blit(closet_img, (self.CLOSET_X, self.CLOSET_Y))
         except:
-            pygame.draw.rect(screen, (100, 70, 30), (100, self.screen_height - 450, 300, 400))
+            pygame.draw.rect(screen, (100, 70, 30),
+                             (self.CLOSET_X, self.CLOSET_Y, self.CLOSET_WIDTH, self.CLOSET_HEIGHT))
 
-        # Полка с кристаллами (на шкафу)
+        # Полка с кристаллами
         try:
             if self.crystal_shelf_state == 0:
                 crystal_img = pygame.image.load("assets/polka_kristal.png")
@@ -47,111 +79,127 @@ class Room2:
                 crystal_img = pygame.image.load("assets/polka_kristal_2.png")
             else:
                 crystal_img = pygame.image.load("assets/polka_kristal_3.png")
-            crystal_img = pygame.transform.scale(crystal_img, (120, 100))
-            screen.blit(crystal_img, (150, self.screen_height - 400))
+            crystal_img = pygame.transform.scale(crystal_img,
+                                                 (self.CRYSTAL_SHELF_WIDTH, self.CRYSTAL_SHELF_HEIGHT))
+            screen.blit(crystal_img, (self.CRYSTAL_SHELF_X, self.CRYSTAL_SHELF_Y))
         except:
-            pygame.draw.rect(screen, (150, 150, 150), (150, self.screen_height - 400, 120, 100))
+            pygame.draw.rect(screen, (150, 150, 150),
+                             (self.CRYSTAL_SHELF_X, self.CRYSTAL_SHELF_Y,
+                              self.CRYSTAL_SHELF_WIDTH, self.CRYSTAL_SHELF_HEIGHT))
 
-        # Свиток под полкой (после решения)
+        # Свиток под полкой с кристаллами (после решения)
         if self.crystal_shelf_state >= 2 and "svitok3" not in self.inventory:
+            scroll_x = self.CRYSTAL_SHELF_X + 20
+            scroll_y = self.CRYSTAL_SHELF_Y + self.CRYSTAL_SHELF_HEIGHT + 20
             try:
                 scroll_img = pygame.image.load("assets/svitok3.png")
-                scroll_img = pygame.transform.scale(scroll_img, (40, 60))
-                screen.blit(scroll_img, (170, self.screen_height - 300))
+                scroll_img = pygame.transform.scale(scroll_img, (self.SCROLL_WIDTH, self.SCROLL_HEIGHT))
+                screen.blit(scroll_img, (scroll_x, scroll_y))
             except:
-                pygame.draw.rect(screen, (200, 200, 150), (170, self.screen_height - 300, 40, 60))
+                pygame.draw.rect(screen, (200, 200, 150), (scroll_x, scroll_y, self.SCROLL_WIDTH, self.SCROLL_HEIGHT))
 
-        # Полка со свитками (на шкафу, выше)
+        # Полка со свитками
         try:
             scroll_shelf_img = pygame.image.load("assets/polka_svitok.png")
-            scroll_shelf_img = pygame.transform.scale(scroll_shelf_img, (120, 100))
-            screen.blit(scroll_shelf_img, (150, self.screen_height - 500))
+            scroll_shelf_img = pygame.transform.scale(scroll_shelf_img,
+                                                      (self.SCROLL_SHELF_WIDTH, self.SCROLL_SHELF_HEIGHT))
+            screen.blit(scroll_shelf_img, (self.SCROLL_SHELF_X, self.SCROLL_SHELF_Y))
         except:
-            pygame.draw.rect(screen, (150, 150, 150), (150, self.screen_height - 500, 120, 100))
-
-        # Свитки на полке (если размещены)
-        scroll_positions = [(160, self.screen_height - 490), (180, self.screen_height - 480),
-                            (200, self.screen_height - 470), (220, self.screen_height - 460),
-                            (240, self.screen_height - 450)]
-
-        for i, pos in enumerate(scroll_positions):
-            if self.scrolls_placed[i]:
-                try:
-                    height = 60 - i * 5
-                    pygame.draw.rect(screen, (200, 200, 150), (pos[0], pos[1], 30, height))
-                except:
-                    pass
+            pygame.draw.rect(screen, (150, 150, 150),
+                             (self.SCROLL_SHELF_X, self.SCROLL_SHELF_Y,
+                              self.SCROLL_SHELF_WIDTH, self.SCROLL_SHELF_HEIGHT))
 
         # Ключ под полкой со свитками (после решения)
         if all(self.scrolls_placed) and self.is_scrolls_correct() and "anibus_key" not in self.inventory:
+            key_x = self.SCROLL_SHELF_X + 20
+            key_y = self.SCROLL_SHELF_Y + self.SCROLL_SHELF_HEIGHT + 20
             try:
                 key_img = pygame.image.load("assets/anibus_key.png")
-                key_img = pygame.transform.scale(key_img, (60, 30))
-                screen.blit(key_img, (170, self.screen_height - 400))
+                key_img = pygame.transform.scale(key_img, (self.KEY_WIDTH, self.KEY_HEIGHT))
+                screen.blit(key_img, (key_x, key_y))
             except:
-                pygame.draw.rect(screen, (200, 200, 0), (170, self.screen_height - 400, 60, 30))
+                pygame.draw.rect(screen, (200, 200, 0), (key_x, key_y, self.KEY_WIDTH, self.KEY_HEIGHT))
 
         # NPC кот
         try:
             cat_img = pygame.image.load("assets/cat_npc.png")
-            cat_img = pygame.transform.scale(cat_img, (150, 200))
-            screen.blit(cat_img, (self.screen_width - 250, self.screen_height - 300))
+            cat_img = pygame.transform.scale(cat_img, (self.CAT_WIDTH, self.CAT_HEIGHT))
+            screen.blit(cat_img, (self.CAT_X, self.CAT_Y))
         except:
-            pygame.draw.circle(screen, (150, 150, 150), (self.screen_width - 175, self.screen_height - 200), 50)
+            pygame.draw.circle(screen, (150, 150, 150),
+                               (self.CAT_X + self.CAT_WIDTH // 2,
+                                self.CAT_Y + self.CAT_HEIGHT // 2),
+                               self.CAT_WIDTH // 3)
 
         # Диалоговое облако
         if self.npc_interacted and not self.npc_key_available:
+            dialog_x = self.CAT_X - 150
+            dialog_y = self.CAT_Y - 50
+
             try:
                 dialog_img = pygame.image.load("assets/dialog.png")
                 dialog_img = pygame.transform.scale(dialog_img, (200, 100))
-                screen.blit(dialog_img, (self.screen_width - 400, self.screen_height - 350))
+                screen.blit(dialog_img, (dialog_x, dialog_y))
 
                 font = pygame.font.SysFont("Arial", 16)
                 text = font.render("Принеси мне карту!", True, (0, 0, 0))
-                screen.blit(text, (self.screen_width - 390, self.screen_height - 320))
+                screen.blit(text, (dialog_x + 10, dialog_y + 30))
             except:
-                pygame.draw.ellipse(screen, (255, 255, 255),
-                                    (self.screen_width - 400, self.screen_height - 350, 200, 100))
+                pygame.draw.ellipse(screen, (255, 255, 255), (dialog_x, dialog_y, 200, 100))
                 font = pygame.font.SysFont("Arial", 16)
                 text = font.render("Принеси мне карту!", True, (0, 0, 0))
-                screen.blit(text, (self.screen_width - 390, self.screen_height - 320))
+                screen.blit(text, (dialog_x + 10, dialog_y + 30))
 
         # Ключ от NPC (после получения карты)
         if self.npc_key_available and "key_from_npc" not in self.inventory:
+            key_x = self.CAT_X + 50
+            key_y = self.CAT_Y - 50
             try:
                 key_img = pygame.image.load("assets/key_from_npc.png")
-                key_img = pygame.transform.scale(key_img, (60, 30))
-                screen.blit(key_img, (self.screen_width - 200, self.screen_height - 350))
+                key_img = pygame.transform.scale(key_img, (self.KEY_WIDTH, self.KEY_HEIGHT))
+                screen.blit(key_img, (key_x, key_y))
             except:
-                pygame.draw.rect(screen, (200, 100, 0), (self.screen_width - 200, self.screen_height - 350, 60, 30))
+                pygame.draw.rect(screen, (200, 100, 0), (key_x, key_y, self.KEY_WIDTH, self.KEY_HEIGHT))
 
-        # Стрелки навигации
-        try:
-            left_arrow = pygame.image.load("assets/left_strelka.png")
-            left_arrow = pygame.transform.scale(left_arrow, (50, 50))
-            screen.blit(left_arrow, (20, self.screen_height // 2))
-        except:
-            pygame.draw.polygon(screen, (255, 255, 255),
-                                [(20, self.screen_height // 2), (50, self.screen_height // 2 - 25),
-                                 (50, self.screen_height // 2 + 25)])
+        # Стрелки для навигации
+        self.draw_navigation_arrows(screen)
 
-        try:
-            right_arrow = pygame.image.load("assets/right_strelka.png")
-            right_arrow = pygame.transform.scale(right_arrow, (50, 50))
-            screen.blit(right_arrow, (self.screen_width - 70, self.screen_height // 2))
-        except:
-            pygame.draw.polygon(screen, (255, 255, 255),
-                                [(self.screen_width - 20, self.screen_height // 2),
-                                 (self.screen_width - 50, self.screen_height // 2 - 25),
-                                 (self.screen_width - 50, self.screen_height // 2 + 25)])
-
-        # Показать увеличенные полки
+        # Если активна головоломка, рисуем ее поверх
         if self.current_puzzle == "crystal_shelf":
             self.draw_crystal_shelf_puzzle(screen)
         elif self.current_puzzle == "scroll_shelf":
             self.draw_scroll_shelf_puzzle(screen)
 
         return None
+
+    def draw_navigation_arrows(self, screen):
+        # Стрелка влево
+        left_arrow_x = 20
+        left_arrow_y = self.screen_height // 2 - 25
+
+        try:
+            left_arrow = pygame.image.load("assets/left_strelka.png")
+            left_arrow = pygame.transform.scale(left_arrow, (50, 50))
+            screen.blit(left_arrow, (left_arrow_x, left_arrow_y))
+        except:
+            pygame.draw.polygon(screen, (255, 255, 255),
+                                [(left_arrow_x, left_arrow_y + 25),
+                                 (left_arrow_x + 30, left_arrow_y),
+                                 (left_arrow_x + 30, left_arrow_y + 50)])
+
+        # Стрелка вправо
+        right_arrow_x = self.screen_width - 70
+        right_arrow_y = self.screen_height // 2 - 25
+
+        try:
+            right_arrow = pygame.image.load("assets/right_strelka.png")
+            right_arrow = pygame.transform.scale(right_arrow, (50, 50))
+            screen.blit(right_arrow, (right_arrow_x, right_arrow_y))
+        except:
+            pygame.draw.polygon(screen, (255, 255, 255),
+                                [(right_arrow_x + 20, right_arrow_y + 25),
+                                 (right_arrow_x - 10, right_arrow_y),
+                                 (right_arrow_x - 10, right_arrow_y + 50)])
 
     def draw_crystal_shelf_puzzle(self, screen):
         overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
@@ -190,23 +238,6 @@ class Room2:
             pygame.draw.rect(screen, (150, 150, 150),
                              (self.screen_width // 2 - 200, self.screen_height // 2 - 100, 400, 200))
 
-        # Существующие свитки на полке (4 штуки)
-        scroll_width = 60
-        scroll_spacing = 70
-        start_x = self.screen_width // 2 - 180
-
-        for i in range(5):
-            if i < 4:  # Первые 4 свитка уже на полке
-                try:
-                    scroll_img = pygame.image.load(f"assets/svitok{[1, 2, 4, 5][i]}.png")
-                    scroll_height = 80 + ([1, 2, 4, 5][i] - 1) * 10
-                    scroll_img = pygame.transform.scale(scroll_img, (scroll_width, scroll_height))
-                    screen.blit(scroll_img, (start_x + i * scroll_spacing, self.screen_height // 2 - 50))
-                except:
-                    height = 80 + ([1, 2, 4, 5][i] - 1) * 10
-                    pygame.draw.rect(screen, (200, 200, 150),
-                                     (start_x + i * scroll_spacing, self.screen_height // 2 - 50, scroll_width, height))
-
         # Инструкция
         font = pygame.font.SysFont("Arial", 24)
         instruction = font.render("Расставьте свитки по возрастанию (кликайте для замены)", True, (255, 255, 255))
@@ -220,8 +251,6 @@ class Room2:
 
     def set_puzzle(self, puzzle_type):
         self.current_puzzle = puzzle_type
-        if puzzle_type is None:
-            self.selected_scroll = None
 
     def is_scrolls_correct(self):
         return self.scrolls_order == [1, 2, 3, 4, 5]
@@ -298,27 +327,34 @@ class Room2:
             x, y = event.pos
 
             # Стрелки навигации
-            if 20 <= x <= 70 and self.screen_height // 2 - 25 <= y <= self.screen_height // 2 + 25:
+            left_arrow_rect = pygame.Rect(20, self.screen_height // 2 - 25, 50, 50)
+            right_arrow_rect = pygame.Rect(self.screen_width - 70, self.screen_height // 2 - 25, 50, 50)
+
+            if left_arrow_rect.collidepoint(x, y):
                 return "prev_room"
-            if self.screen_width - 70 <= x <= self.screen_width - 20 and self.screen_height // 2 - 25 <= y <= self.screen_height // 2 + 25:
+            if right_arrow_rect.collidepoint(x, y):
                 return "next_room"
 
             # Полка с кристаллами
-            crystal_rect = pygame.Rect(150, self.screen_height - 400, 120, 100)
+            crystal_rect = pygame.Rect(self.CRYSTAL_SHELF_X, self.CRYSTAL_SHELF_Y,
+                                       self.CRYSTAL_SHELF_WIDTH, self.CRYSTAL_SHELF_HEIGHT)
             if crystal_rect.collidepoint(x, y):
                 self.set_puzzle("crystal_shelf")
                 return None
 
             # Свиток под полкой с кристаллами
             if self.crystal_shelf_state >= 2 and "svitok3" not in self.inventory:
-                scroll_rect = pygame.Rect(170, self.screen_height - 300, 40, 60)
+                scroll_x = self.CRYSTAL_SHELF_X + 20
+                scroll_y = self.CRYSTAL_SHELF_Y + self.CRYSTAL_SHELF_HEIGHT + 20
+                scroll_rect = pygame.Rect(scroll_x, scroll_y, self.SCROLL_WIDTH, self.SCROLL_HEIGHT)
                 if scroll_rect.collidepoint(x, y):
                     if self.add_to_inventory:
                         self.add_to_inventory("svitok3")
                     return "add_svitok3"
 
             # Полка со свитками
-            scroll_shelf_rect = pygame.Rect(150, self.screen_height - 500, 120, 100)
+            scroll_shelf_rect = pygame.Rect(self.SCROLL_SHELF_X, self.SCROLL_SHELF_Y,
+                                            self.SCROLL_SHELF_WIDTH, self.SCROLL_SHELF_HEIGHT)
             if scroll_shelf_rect.collidepoint(x, y):
                 if self.selected_item == "svitok3" and not all(self.scrolls_placed):
                     # Размещаем свиток
@@ -334,14 +370,16 @@ class Room2:
 
             # Ключ под полкой со свитками
             if all(self.scrolls_placed) and self.is_scrolls_correct() and "anibus_key" not in self.inventory:
-                key_rect = pygame.Rect(170, self.screen_height - 400, 60, 30)
+                key_x = self.SCROLL_SHELF_X + 20
+                key_y = self.SCROLL_SHELF_Y + self.SCROLL_SHELF_HEIGHT + 20
+                key_rect = pygame.Rect(key_x, key_y, self.KEY_WIDTH, self.KEY_HEIGHT)
                 if key_rect.collidepoint(x, y):
                     if self.add_to_inventory:
                         self.add_to_inventory("anibus_key")
                     return "add_anibus_key"
 
             # NPC кот
-            cat_rect = pygame.Rect(self.screen_width - 250, self.screen_height - 300, 150, 200)
+            cat_rect = pygame.Rect(self.CAT_X, self.CAT_Y, self.CAT_WIDTH, self.CAT_HEIGHT)
             if cat_rect.collidepoint(x, y):
                 if self.selected_item == "karta":
                     self.npc_key_available = True
@@ -354,7 +392,9 @@ class Room2:
 
             # Ключ от NPC
             if self.npc_key_available and "key_from_npc" not in self.inventory:
-                key_rect = pygame.Rect(self.screen_width - 200, self.screen_height - 350, 60, 30)
+                key_x = self.CAT_X + 50
+                key_y = self.CAT_Y - 50
+                key_rect = pygame.Rect(key_x, key_y, self.KEY_WIDTH, self.KEY_HEIGHT)
                 if key_rect.collidepoint(x, y):
                     if self.add_to_inventory:
                         self.add_to_inventory("key_from_npc")

@@ -6,6 +6,29 @@ class PyramidPuzzle:
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
+
+        # Константы для домофона
+        self.DOMOFON_WIDTH = 80
+        self.DOMOFON_HEIGHT = 80
+        self.DOMOFON_X = self.screen_width // 2 + 130
+        self.DOMOFON_Y = self.screen_height - 200
+
+        # Константы для кирпичей
+        self.BRICK_WIDTH = 160
+        self.BRICK_HEIGHT = 70
+        self.BRICK_POSITIONS = [
+            (300, 590),  # кирпич 1
+            (350, 380),  # кирпич 2
+            (600, 320),  # кирпич 3
+            (750, 480)  # кирпич 4
+        ]
+
+        # Константы для увеличенного домофона
+        self.DOMOFON_CLOSE_WIDTH = 400
+        self.DOMOFON_CLOSE_HEIGHT = 300
+        self.DOMOFON_CLOSE_X = self.screen_width // 2 - 200
+        self.DOMOFON_CLOSE_Y = self.screen_height // 2 - 150
+
         self.background = None
         self.current_puzzle = None  # "brick" или "domofon"
         self.domofon_code = []
@@ -26,26 +49,21 @@ class PyramidPuzzle:
         # Домофон
         try:
             domofon_img = pygame.image.load("assets/domofon.png")
-            domofon_img = pygame.transform.scale(domofon_img, (80, 80))
-            screen.blit(domofon_img, (self.screen_width // 2 + 100, self.screen_height - 200))
+            domofon_img = pygame.transform.scale(domofon_img, (self.DOMOFON_WIDTH, self.DOMOFON_HEIGHT))
+            screen.blit(domofon_img, (self.DOMOFON_X, self.DOMOFON_Y))
         except:
-            pygame.draw.rect(screen, (50, 50, 50), (self.screen_width // 2 + 100, self.screen_height - 200, 80, 80))
+            pygame.draw.rect(screen, (50, 50, 50),
+                             (self.DOMOFON_X, self.DOMOFON_Y, self.DOMOFON_WIDTH, self.DOMOFON_HEIGHT))
 
-        # Кирпичи (размещены на пирамиде)
-        brick_positions = [
-            (400, 300),  # кирпич 1
-            (450, 280),  # кирпич 2
-            (500, 320),  # кирпич 3
-            (550, 290)  # кирпич 4
-        ]
-
-        for i, pos in enumerate(brick_positions):
+        # Кирпичи
+        for i, (pos_x, pos_y) in enumerate(self.BRICK_POSITIONS):
             try:
                 brick_img = pygame.image.load(f"assets/kirpich{i + 1}.png")
-                brick_img = pygame.transform.scale(brick_img, (60, 40))
-                screen.blit(brick_img, pos)
+                brick_img = pygame.transform.scale(brick_img, (self.BRICK_WIDTH, self.BRICK_HEIGHT))
+                screen.blit(brick_img, (pos_x, pos_y))
             except:
-                pygame.draw.rect(screen, (150, 100, 50), (pos[0], pos[1], 60, 40))
+                pygame.draw.rect(screen, (150, 100, 50),
+                                 (pos_x, pos_y, self.BRICK_WIDTH, self.BRICK_HEIGHT))
 
         # Если активна головоломка, рисуем ее поверх
         if self.current_puzzle == "domofon":
@@ -61,17 +79,20 @@ class PyramidPuzzle:
 
         try:
             domofon_img = pygame.image.load("assets/domofon_blizhe.png")
-            domofon_img = pygame.transform.scale(domofon_img, (400, 300))
-            screen.blit(domofon_img, (self.screen_width // 2 - 200, self.screen_height // 2 - 150))
+            domofon_img = pygame.transform.scale(domofon_img,
+                                                 (self.DOMOFON_CLOSE_WIDTH, self.DOMOFON_CLOSE_HEIGHT))
+            screen.blit(domofon_img, (self.DOMOFON_CLOSE_X, self.DOMOFON_CLOSE_Y))
         except:
             pygame.draw.rect(screen, (50, 50, 50),
-                             (self.screen_width // 2 - 200, self.screen_height // 2 - 150, 400, 300))
+                             (self.DOMOFON_CLOSE_X, self.DOMOFON_CLOSE_Y,
+                              self.DOMOFON_CLOSE_WIDTH, self.DOMOFON_CLOSE_HEIGHT))
 
         # Отображение введенного кода
         font = pygame.font.SysFont("Arial", 36)
         code_display = " ".join(self.domofon_code) if self.domofon_code else "_ _ _ _"
         text_surface = font.render(code_display, True, (255, 255, 255))
-        screen.blit(text_surface, (self.screen_width // 2 - text_surface.get_width() // 2, self.screen_height // 2))
+        screen.blit(text_surface, (self.screen_width // 2 - text_surface.get_width() // 2,
+                                   self.screen_height // 2))
 
         # Кнопка назад
         back_btn = Button(self.screen_width // 2 - 50, self.screen_height // 2 + 100, "Назад",
@@ -79,13 +100,13 @@ class PyramidPuzzle:
         back_btn.check_hover(pygame.mouse.get_pos())
         back_btn.draw(screen)
 
-    def draw_brick_puzzle(self, screen, brick_num=1):
+    def draw_brick_puzzle(self, screen):
         overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
         screen.blit(overlay, (0, 0))
 
         font = pygame.font.SysFont("Arial", 72)
-        text = self.brick_numbers.get(brick_num, "?")
+        text = self.brick_numbers.get(self.current_puzzle_data, "?")
         text_surface = font.render(text, True, (255, 255, 255))
         screen.blit(text_surface,
                     (self.screen_width // 2 - text_surface.get_width() // 2,
@@ -133,21 +154,16 @@ class PyramidPuzzle:
             x, y = event.pos
 
             # Проверяем домофон
-            domofon_rect = pygame.Rect(self.screen_width // 2 + 100, self.screen_height - 200, 80, 80)
+            domofon_rect = pygame.Rect(self.DOMOFON_X, self.DOMOFON_Y,
+                                       self.DOMOFON_WIDTH, self.DOMOFON_HEIGHT)
             if domofon_rect.collidepoint(x, y):
                 self.set_puzzle("domofon")
                 return None
 
             # Проверяем кирпичи
-            brick_positions = [
-                (400, 300, 60, 40),  # кирпич 1
-                (450, 280, 60, 40),  # кирпич 2
-                (500, 320, 60, 40),  # кирпич 3
-                (550, 290, 60, 40)  # кирпич 4
-            ]
-
-            for i, (bx, by, bw, bh) in enumerate(brick_positions):
-                if bx <= x <= bx + bw and by <= y <= by + bh:
+            for i, (brick_x, brick_y) in enumerate(self.BRICK_POSITIONS):
+                brick_rect = pygame.Rect(brick_x, brick_y, self.BRICK_WIDTH, self.BRICK_HEIGHT)
+                if brick_rect.collidepoint(x, y):
                     self.set_puzzle("brick", i + 1)
                     return None
 

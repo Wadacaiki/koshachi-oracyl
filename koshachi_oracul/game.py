@@ -52,7 +52,7 @@ class Game:
             if words_to_show < len(words):
                 current_text = " ".join(words[:words_to_show])
             else:
-                if current_time > len(words) * word_delay + 10:
+                if current_time > len(words) * word_delay + 1:
                     showing = False
                     self.current_screen = "pyramid"
                 current_text = story_text

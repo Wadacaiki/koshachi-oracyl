@@ -6,6 +6,37 @@ class Room1:
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
+
+        # Константы для вазы
+        self.VASE_WIDTH = 450
+        self.VASE_HEIGHT = 750
+        self.VASE_X = 30
+        self.VASE_Y = self.screen_height - 550
+
+        # Константы для записки
+        self.NOTE_WIDTH = 60
+        self.NOTE_HEIGHT = 80
+        self.NOTE_X = self.VASE_X + (self.VASE_WIDTH // 2) - (self.NOTE_WIDTH // 2)
+        self.NOTE_Y = self.VASE_Y
+
+        # Константы для гробницы
+        self.COFFIN_WIDTH = 200
+        self.COFFIN_HEIGHT = 300
+        self.COFFIN_X = self.screen_width - 250
+        self.COFFIN_Y = self.screen_height - 350
+
+        # Константы для сейфа
+        self.SAFE_WIDTH = 150
+        self.SAFE_HEIGHT = 150
+        self.SAFE_X = self.screen_width - 200
+        self.SAFE_Y = 100
+
+        # Константы для двери
+        self.DOOR_WIDTH = 150
+        self.DOOR_HEIGHT = 250
+        self.DOOR_X = self.screen_width // 2 - 75
+        self.DOOR_Y = self.screen_height - 300
+
         self.background = None
         self.inventory = []
         self.add_to_inventory = None
@@ -32,51 +63,58 @@ class Room1:
         if not self.vase_broken:
             try:
                 vase_img = pygame.image.load("assets/vaza.png")
-                vase_img = pygame.transform.scale(vase_img, (450, 750))
-                screen.blit(vase_img, (30, self.screen_height - 550))
+                vase_img = pygame.transform.scale(vase_img, (self.VASE_WIDTH, self.VASE_HEIGHT))
+                screen.blit(vase_img, (self.VASE_X, self.VASE_Y))
             except:
-                pygame.draw.rect(screen, (200, 200, 200), (30, self.screen_height - 550, 450, 750))
+                pygame.draw.rect(screen, (200, 200, 200), (self.VASE_X, self.VASE_Y, self.VASE_WIDTH, self.VASE_HEIGHT))
         else:
-            # Разбитая ваза
+            # Разбитая ваза - на 50px выше
+            broken_vase_y = self.VASE_Y - 50
             try:
                 vase_img = pygame.image.load("assets/vaza_razbita.png")
-                vase_img = pygame.transform.scale(vase_img, (450, 750))
-                screen.blit(vase_img, (30, self.screen_height - 600))
+                vase_img = pygame.transform.scale(vase_img, (self.VASE_WIDTH, self.VASE_HEIGHT))
+                screen.blit(vase_img, (self.VASE_X, broken_vase_y))
             except:
-                pygame.draw.rect(screen, (150, 150, 150), (30, self.screen_height - 600, 450, 750))
+                pygame.draw.rect(screen, (150, 150, 150),
+                                 (self.VASE_X, broken_vase_y, self.VASE_WIDTH, self.VASE_HEIGHT))
 
-        # Записка (после разбития вазы)
-        if self.vase_broken and "zapiska" not in self.inventory:
-            try:
-                note_img = pygame.image.load("assets/zapiska.png")
-                note_img = pygame.transform.scale(note_img, (60, 80))
-                screen.blit(note_img, (225, self.screen_height - 550))
-            except:
-                pygame.draw.rect(screen, (255, 255, 200), (225, self.screen_height - 550, 60, 80))
+            # Записка на развалинах вазы
+            if "zapiska" not in self.inventory:
+                try:
+                    note_img = pygame.image.load("assets/zapiska.png")
+                    note_img = pygame.transform.scale(note_img, (self.NOTE_WIDTH, self.NOTE_HEIGHT))
+                    screen.blit(note_img, (self.NOTE_X, self.NOTE_Y))
+                except:
+                    pygame.draw.rect(screen, (255, 255, 200),
+                                     (self.NOTE_X, self.NOTE_Y, self.NOTE_WIDTH, self.NOTE_HEIGHT))
 
         # Гробница
         if not self.coffin_opened:
             try:
                 coffin_img = pygame.image.load("assets/grob_close.png")
-                coffin_img = pygame.transform.scale(coffin_img, (200, 300))
-                screen.blit(coffin_img, (self.screen_width - 250, self.screen_height - 350))
+                coffin_img = pygame.transform.scale(coffin_img, (self.COFFIN_WIDTH, self.COFFIN_HEIGHT))
+                screen.blit(coffin_img, (self.COFFIN_X, self.COFFIN_Y))
             except:
-                pygame.draw.rect(screen, (150, 150, 150), (self.screen_width - 250, self.screen_height - 350, 200, 300))
+                pygame.draw.rect(screen, (150, 150, 150),
+                                 (self.COFFIN_X, self.COFFIN_Y, self.COFFIN_WIDTH, self.COFFIN_HEIGHT))
         else:
             try:
                 coffin_img = pygame.image.load("assets/grob_open.png")
-                coffin_img = pygame.transform.scale(coffin_img, (200, 300))
-                screen.blit(coffin_img, (self.screen_width - 250, self.screen_height - 350))
+                coffin_img = pygame.transform.scale(coffin_img, (self.COFFIN_WIDTH, self.COFFIN_HEIGHT))
+                screen.blit(coffin_img, (self.COFFIN_X, self.COFFIN_Y))
 
                 # Анибус внутри
                 if "anibus" not in self.inventory:
                     try:
                         anibus_img = pygame.image.load("assets/anibus.png")
                         anibus_img = pygame.transform.scale(anibus_img, (80, 80))
-                        screen.blit(anibus_img, (self.screen_width - 200, self.screen_height - 300))
+                        anibus_x = self.COFFIN_X + (self.COFFIN_WIDTH // 2) - 40
+                        anibus_y = self.COFFIN_Y + (self.COFFIN_HEIGHT // 2) - 40
+                        screen.blit(anibus_img, (anibus_x, anibus_y))
                     except:
-                        pygame.draw.circle(screen, (255, 215, 0), (self.screen_width - 160, self.screen_height - 260),
-                                           30)
+                        pygame.draw.circle(screen, (255, 215, 0),
+                                           (self.COFFIN_X + self.COFFIN_WIDTH // 2,
+                                            self.COFFIN_Y + self.COFFIN_HEIGHT // 2), 30)
             except:
                 pass
 
@@ -84,53 +122,69 @@ class Room1:
         if not self.safe_opened:
             try:
                 safe_img = pygame.image.load("assets/polka_s_seyfom_s_npc_key.png")
-                safe_img = pygame.transform.scale(safe_img, (150, 150))
-                screen.blit(safe_img, (self.screen_width - 200, 100))
+                safe_img = pygame.transform.scale(safe_img, (self.SAFE_WIDTH, self.SAFE_HEIGHT))
+                screen.blit(safe_img, (self.SAFE_X, self.SAFE_Y))
             except:
-                pygame.draw.rect(screen, (100, 100, 100), (self.screen_width - 200, 100, 150, 150))
+                pygame.draw.rect(screen, (100, 100, 100), (self.SAFE_X, self.SAFE_Y, self.SAFE_WIDTH, self.SAFE_HEIGHT))
         else:
             # Статуэтка кота в сейфе
             if "serebro_cat" not in self.inventory:
                 try:
                     cat_img = pygame.image.load("assets/serebro_cat.png")
                     cat_img = pygame.transform.scale(cat_img, (80, 80))
-                    screen.blit(cat_img, (self.screen_width - 180, 120))
+                    cat_x = self.SAFE_X + (self.SAFE_WIDTH // 2) - 40
+                    cat_y = self.SAFE_Y + 20
+                    screen.blit(cat_img, (cat_x, cat_y))
                 except:
-                    pygame.draw.circle(screen, (200, 200, 200), (self.screen_width - 140, 160), 30)
+                    pygame.draw.circle(screen, (200, 200, 200),
+                                       (self.SAFE_X + self.SAFE_WIDTH // 2,
+                                        self.SAFE_Y + self.SAFE_HEIGHT // 2), 30)
 
         # Дверь
         try:
             door_img = pygame.image.load("assets/door.png")
-            door_img = pygame.transform.scale(door_img, (150, 250))
-            screen.blit(door_img, (self.screen_width // 2 - 75, self.screen_height - 300))
+            door_img = pygame.transform.scale(door_img, (self.DOOR_WIDTH, self.DOOR_HEIGHT))
+            screen.blit(door_img, (self.DOOR_X, self.DOOR_Y))
         except:
-            pygame.draw.rect(screen, (100, 70, 30), (self.screen_width // 2 - 75, self.screen_height - 300, 150, 250))
+            pygame.draw.rect(screen, (100, 70, 30), (self.DOOR_X, self.DOOR_Y, self.DOOR_WIDTH, self.DOOR_HEIGHT))
 
-        # Стрелки навигации
-        try:
-            left_arrow = pygame.image.load("assets/left_strelka.png")
-            left_arrow = pygame.transform.scale(left_arrow, (50, 50))
-            screen.blit(left_arrow, (20, self.screen_height // 2))
-        except:
-            pygame.draw.polygon(screen, (255, 255, 255),
-                                [(20, self.screen_height // 2), (50, self.screen_height // 2 - 25),
-                                 (50, self.screen_height // 2 + 25)])
-
-        try:
-            right_arrow = pygame.image.load("assets/right_strelka.png")
-            right_arrow = pygame.transform.scale(right_arrow, (50, 50))
-            screen.blit(right_arrow, (self.screen_width - 70, self.screen_height // 2))
-        except:
-            pygame.draw.polygon(screen, (255, 255, 255),
-                                [(self.screen_width - 20, self.screen_height // 2),
-                                 (self.screen_width - 50, self.screen_height // 2 - 25),
-                                 (self.screen_width - 50, self.screen_height // 2 + 25)])
+        # Стрелки для навигации
+        self.draw_navigation_arrows(screen)
 
         # Показать увеличенную записку
         if self.current_puzzle == "note":
             self.draw_note_puzzle(screen)
 
         return None
+
+    def draw_navigation_arrows(self, screen):
+        # Стрелка влево
+        left_arrow_x = 20
+        left_arrow_y = self.screen_height // 2 - 25
+
+        try:
+            left_arrow = pygame.image.load("assets/left_strelka.png")
+            left_arrow = pygame.transform.scale(left_arrow, (50, 50))
+            screen.blit(left_arrow, (left_arrow_x, left_arrow_y))
+        except:
+            pygame.draw.polygon(screen, (255, 255, 255),
+                                [(left_arrow_x, left_arrow_y + 25),
+                                 (left_arrow_x + 30, left_arrow_y),
+                                 (left_arrow_x + 30, left_arrow_y + 50)])
+
+        # Стрелка вправо
+        right_arrow_x = self.screen_width - 70
+        right_arrow_y = self.screen_height // 2 - 25
+
+        try:
+            right_arrow = pygame.image.load("assets/right_strelka.png")
+            right_arrow = pygame.transform.scale(right_arrow, (50, 50))
+            screen.blit(right_arrow, (right_arrow_x, right_arrow_y))
+        except:
+            pygame.draw.polygon(screen, (255, 255, 255),
+                                [(right_arrow_x + 20, right_arrow_y + 25),
+                                 (right_arrow_x - 10, right_arrow_y),
+                                 (right_arrow_x - 10, right_arrow_y + 50)])
 
     def draw_note_puzzle(self, screen):
         overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
@@ -176,27 +230,30 @@ class Room1:
             x, y = event.pos
 
             # Стрелки навигации
-            if 20 <= x <= 70 and self.screen_height // 2 - 25 <= y <= self.screen_height // 2 + 25:
+            left_arrow_rect = pygame.Rect(20, self.screen_height // 2 - 25, 50, 50)
+            right_arrow_rect = pygame.Rect(self.screen_width - 70, self.screen_height // 2 - 25, 50, 50)
+
+            if left_arrow_rect.collidepoint(x, y):
                 return "prev_room"
-            if self.screen_width - 70 <= x <= self.screen_width - 20 and self.screen_height // 2 - 25 <= y <= self.screen_height // 2 + 25:
+            if right_arrow_rect.collidepoint(x, y):
                 return "next_room"
 
-            # Ваза
-            vase_rect = pygame.Rect(30, self.screen_height - 550, 450, 750)
+            # Целая ваза
+            vase_rect = pygame.Rect(self.VASE_X, self.VASE_Y, self.VASE_WIDTH, self.VASE_HEIGHT)
             if not self.vase_broken and vase_rect.collidepoint(x, y):
                 self.vase_broken = True
                 return None
 
-            # Записка
+            # Записка на разбитой вазе
             if self.vase_broken and "zapiska" not in self.inventory:
-                note_rect = pygame.Rect(225, self.screen_height - 550, 60, 80)
+                note_rect = pygame.Rect(self.NOTE_X, self.NOTE_Y, self.NOTE_WIDTH, self.NOTE_HEIGHT)
                 if note_rect.collidepoint(x, y):
                     if self.add_to_inventory:
                         self.add_to_inventory("zapiska")
                     return "add_zapiska"
 
             # Гробница
-            coffin_rect = pygame.Rect(self.screen_width - 250, self.screen_height - 350, 200, 300)
+            coffin_rect = pygame.Rect(self.COFFIN_X, self.COFFIN_Y, self.COFFIN_WIDTH, self.COFFIN_HEIGHT)
             if coffin_rect.collidepoint(x, y):
                 if not self.coffin_opened:
                     if self.selected_item == "anibus_key":
@@ -210,7 +267,7 @@ class Room1:
                     return "add_anibus"
 
             # Сейф
-            safe_rect = pygame.Rect(self.screen_width - 200, 100, 150, 150)
+            safe_rect = pygame.Rect(self.SAFE_X, self.SAFE_Y, self.SAFE_WIDTH, self.SAFE_HEIGHT)
             if safe_rect.collidepoint(x, y):
                 if not self.safe_opened:
                     if self.selected_item == "key_from_npc":
@@ -224,7 +281,7 @@ class Room1:
                     return "add_serebro_cat"
 
             # Дверь
-            door_rect = pygame.Rect(self.screen_width // 2 - 75, self.screen_height - 300, 150, 250)
+            door_rect = pygame.Rect(self.DOOR_X, self.DOOR_Y, self.DOOR_WIDTH, self.DOOR_HEIGHT)
             if door_rect.collidepoint(x, y) and has_all_statues and "anibus" in self.inventory:
                 return "door_puzzle"
 
@@ -232,7 +289,6 @@ class Room1:
             # Нажатие на записку в инвентаре
             if self.selected_item == "zapiska":
                 self.set_puzzle("note")
-                # Таймер на 5 секунд
-                pygame.time.set_timer(pygame.USEREVENT, 5000)
+                pygame.time.set_timer(pygame.USEREVENT, 5000)  # 5 секунд
 
         return None
