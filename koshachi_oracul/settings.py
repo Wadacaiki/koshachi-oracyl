@@ -19,7 +19,7 @@ class SettingsMenu:
             self.background = pygame.transform.scale(self.background, (self.screen_width, self.screen_height))
         except:
             self.background = pygame.Surface((self.screen_width, self.screen_height))
-            self.background.fill((50, 50, 50))
+            self.background.fill((40, 40, 80))
 
     def create_buttons(self):
         center_x = self.screen_width // 2
@@ -28,10 +28,18 @@ class SettingsMenu:
         original_btn = Button(center_x - 100, center_y - 100, "Оригинал", lambda: self.set_music("original"))
         egypt_btn = Button(center_x - 100, center_y - 30, "Египетская", lambda: self.set_music("egypt"))
         prayer_btn = Button(center_x - 100, center_y + 40, "Молитва", lambda: self.set_music("prayer"))
-        toggle_btn = Button(center_x - 50, center_y + 110, "", self.toggle_music, 100, 40)
-        exit_btn = Button(20, self.screen_height - 70, "Выход", lambda: "exit")
 
-        self.buttons = [original_btn, egypt_btn, prayer_btn, toggle_btn, exit_btn]
+        # Кнопка переключения музыки ВКЛ/ВЫКЛ
+        toggle_text = "Музыка: ВКЛ" if self.music_enabled else "Музыка: ВЫКЛ"
+        toggle_btn = Button(center_x - 100, center_y + 110, toggle_text, self.toggle_music)
+
+        # Кнопка "Назад" в главное меню - слева снизу
+        back_btn = Button(20, self.screen_height - 70, "Назад", lambda: "main_menu")
+
+        # Кнопка "Выход" - справа снизу
+        exit_btn = Button(self.screen_width - 250, self.screen_height - 70, "Выход", lambda: "exit")
+
+        self.buttons = [original_btn, egypt_btn, prayer_btn, toggle_btn, back_btn, exit_btn]
 
     def set_music(self, music_type):
         self.current_music = music_type
@@ -41,6 +49,8 @@ class SettingsMenu:
 
     def toggle_music(self):
         self.music_enabled = not self.music_enabled
+        # Обновляем текст кнопки
+        self.create_buttons()  # Пересоздаем кнопки с новым текстом
         if self.music_enabled:
             self.play_music()
         else:
@@ -51,18 +61,17 @@ class SettingsMenu:
         try:
             music_file = f"assets/{self.current_music}.mp3"
             pygame.mixer.music.load(music_file)
-            pygame.mixer.music.play(-1)  # Зациклить музыку
+            pygame.mixer.music.play(-1)
         except:
-            print(f"Не удалось загрузить музыку: {music_file}")
+            pass
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
 
-        # Отображение текущего состояния музыки
-        font = pygame.font.SysFont("Arial", 24)
-        music_text = f"Музыка: {'🔊' if self.music_enabled else '🔇'}"
-        text_surface = font.render(music_text, True, (255, 255, 255))
-        screen.blit(text_surface, (self.screen_width // 2 + 60, self.screen_height // 2 + 115))
+        # Заголовок
+        font = pygame.font.SysFont("Arial", 48)
+        title = font.render("Настройки", True, (255, 255, 255))
+        screen.blit(title, (self.screen_width // 2 - title.get_width() // 2, 100))
 
         for button in self.buttons:
             button.check_hover(pygame.mouse.get_pos())

@@ -17,11 +17,9 @@ class AuthMenu:
         try:
             self.background = pygame.image.load("assets/bg_menu.png")
             self.background = pygame.transform.scale(self.background, (self.screen_width, self.screen_height))
-            print("Фон меню аутентификации загружен успешно")
-        except Exception as e:
-            print(f"Ошибка загрузки фона: {e}")
+        except Exception:
             self.background = pygame.Surface((self.screen_width, self.screen_height))
-            self.background.fill((30, 30, 60))  # Синий фон вместо серого
+            self.background.fill((30, 30, 60))
 
     def create_buttons(self):
         center_x = self.screen_width // 2
@@ -55,7 +53,7 @@ class AuthMenu:
 
         # Заголовок
         font = pygame.font.SysFont("Arial", 48)
-        title = font.render("Rusty Lake - Тайны Пирамиды", True, (255, 255, 255))
+        title = font.render("Кошачий оракул", True, (255, 255, 255))
         screen.blit(title, (self.screen_width // 2 - title.get_width() // 2, 100))
 
         for button in self.buttons:

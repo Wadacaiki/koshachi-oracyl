@@ -15,7 +15,7 @@ def main():
     pygame.mixer.init()
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Rusty Lake - Тайны Пирамиды")
+    pygame.display.set_caption("Кошачий оракул")
     clock = pygame.time.Clock()
 
     # Создаем экраны
